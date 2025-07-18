@@ -2,4 +2,8 @@ databaseChangeLog:
   - include:
       file:  db/changelog/user/01-change-user.yaml
   - include:
-      file:  db/changelog/reminder/01-change-reminder.yaml
+      file:   db/changelog/user/02-insert-user.yaml
+  - include:
+      file: db/changelog/reminder/01-change-reminder.yaml
+  - include:
+      file: db/changelog/reminder/02-insert-reminder.yaml

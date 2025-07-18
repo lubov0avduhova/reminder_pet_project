@@ -13,6 +13,7 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
+//todo может изменить название таблицы? в postgres это таблица для юзеров и постоянно нужно указывать имя схемы
 @Table(name = "user")
 @Getter
 @Setter
