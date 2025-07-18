@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: change-reminder-1
+      author: loveavduhova
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_reminder
+                  name: id
+                  type: BIGINT
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+              - column:
+                  name: description
+                  type: VARCHAR(4096)
+              - column:
+                  name: remind
+                  type: DATETIME
+              - column:
+                  name: user_id
+                  type: BIGINT
+            tableName: reminder
+  - changeSet:
+      id: change-reminder-2
+      author: loveavduhova
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: reminder
+            constraintName: FK_REMINDER_ON_USER
+            referencedColumnNames: id
+            referencedTableName: user
+

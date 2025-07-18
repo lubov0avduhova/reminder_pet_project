@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      file:  db/changelog/user/01-change-user.yaml
+  - include:
+      file:  db/changelog/reminder/01-change-reminder.yaml
