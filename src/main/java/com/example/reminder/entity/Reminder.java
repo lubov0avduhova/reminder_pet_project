@@ -8,7 +8,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,26 +20,29 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reminder")
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 //todo можно ли использовать @Data?
 public class Reminder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Max(value = 255, message = "Краткое описание должно быть больше 255 символов")
+    @Size(max = 255, message = "Краткое описание должно быть больше 255 символов")
+    @NotEmpty(message = "Краткое описание не должно быть пустым")
     private String title;
 
-    @Max(value = 4096, message = "Полное описание должно быть больше 4096 символов")
+    @Size(max = 4096, message = "Полное описание должно быть больше 4096 символов")
     private String description;
 
     @Future(message = "Неправильно введена дата")
+    @NotNull(message = "Дата не должна быть пустой")
     private LocalDateTime remind;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User userId;
+    @NotNull(message = "ID пользователя не должен быть пустым")
+    private User user;
 }

@@ -9,42 +9,42 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
-
 import java.util.List;
 
 @Entity
-//todo может изменить название таблицы? в postgres это таблица для юзеров и постоянно нужно указывать имя схемы
-@Table(name = "user")
-@Getter
-@Setter
+@Table(name = "\"user\"")
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Имя пользователя не должно быть пустым")
     private String username;
 
-    @Min(value = 5, message = "Телеграм Id должен содержать более 5 символов")
-    @Max(value = 32, message = "Телеграм Id должен содержать не более 32 символов")
+    @Size(min = 5, max = 32, message = "Телеграм Id должен содержать более 5 символов")
     @Column(name = "telegram_id")
+    //todo нужно ли ставить проверку на null? может пользователь не получать уведомления
     private String telegramId;
 
     @Email(message = "Неправильно введена почта")
+    //todo нужно ли ставить проверку на null? может пользователь не получать уведомления
     private String email;
 
     //todo тут точно all или отдельно прописать какие нужно?
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reminder> reminders;
+
+
 }
