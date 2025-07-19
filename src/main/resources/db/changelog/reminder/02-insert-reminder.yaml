@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+        id: insert-reminder-01
+        author: loveavduhova
+        changes:
+          - loadData:
+              file: db/data/reminder.csv
+              tableName: reminder
+              separator: ","
+              encoding: UTF-8
