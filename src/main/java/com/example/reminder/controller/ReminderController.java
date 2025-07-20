@@ -1,6 +1,7 @@
 package com.example.reminder.controller;
 
 import com.example.reminder.dto.request.ReminderRequest;
+import com.example.reminder.dto.request.ReminderUpdateRequest;
 import com.example.reminder.dto.response.ReminderResponse;
 import com.example.reminder.service.ReminderService;
 import jakarta.validation.Valid;
@@ -8,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,5 +40,17 @@ public class ReminderController {
     @PostMapping("/delete/{userId}/{reminderId}")
     public ReminderResponse deleteReminder(@PathVariable @NotNull Long userId, @PathVariable @NotNull Long reminderId) {
         return service.deleteReminder(userId, reminderId);
+    }
+
+
+    /**
+     * Обновить напоминание
+     * @param reminderId ID напоминания
+     * @param reminder само напоминание
+     * @return ответ обновления
+     */
+    @PutMapping("/update/{reminderId}")
+    public ReminderResponse updateReminder(@PathVariable @NotNull Long reminderId, @RequestBody @Valid ReminderUpdateRequest reminder) {
+        return service.updateReminder(reminderId, reminder);
     }
 }

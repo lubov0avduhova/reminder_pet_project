@@ -1,6 +1,7 @@
 package com.example.reminder.service;
 
 import com.example.reminder.dto.request.ReminderRequest;
+import com.example.reminder.dto.request.ReminderUpdateRequest;
 import com.example.reminder.dto.response.ReminderResponse;
 import com.example.reminder.entity.Reminder;
 import com.example.reminder.entity.User;
@@ -51,6 +52,23 @@ public class ReminderServiceImpl implements ReminderService {
 
 
         return new ReminderResponse("Напоминание с Id: " + reminder.getId() + " было удалено");
+    }
+
+    @Transactional
+    @Override
+    public ReminderResponse updateReminder(@NotNull Long reminderId, ReminderUpdateRequest reminder) {
+
+        User user = userRepository.findById(reminder.getUserId()).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
+        Reminder oldReminder = user.getReminders().stream().filter(r -> r.getId().equals(reminderId)).findFirst().orElse(null);
+
+        if (oldReminder == null) {
+            throw  new ReminderException("Напоминание не найдено");
+        }
+
+        Reminder newEntity = mapper.updateToEntity(oldReminder, reminder);
+        reminderRepository.save(newEntity);
+
+        return new ReminderResponse("Обновление напоминания прошло успешно");
     }
 
     private void existsUserById(Long id) {
