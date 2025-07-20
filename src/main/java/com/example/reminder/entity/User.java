@@ -43,8 +43,6 @@ public class User {
     private String email;
 
     //todo тут точно all или отдельно прописать какие нужно?
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reminder> reminders;
-
-
 }
