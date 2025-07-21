@@ -2,10 +2,12 @@ package com.example.reminder.exception;
 
 import com.example.reminder.dto.response.ReminderErrorResponse;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
@@ -53,5 +55,11 @@ public class ReminderRestExceptionHandler {
         });
 
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(InvalidDataAccessResourceUsageException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<?> handleBadQuery(InvalidDataAccessResourceUsageException ex) {
+        return ResponseEntity.badRequest().body("Ошибка SQL или JPA запроса: " + ex.getMessage());
     }
 }

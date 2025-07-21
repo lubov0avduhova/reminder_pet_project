@@ -1,5 +1,6 @@
 package com.example.reminder.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -24,6 +26,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
+@ToString
 //todo можно ли использовать @Data?
 public class Reminder {
     @Id
@@ -43,6 +46,7 @@ public class Reminder {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     @NotNull(message = "ID пользователя не должен быть пустым")
     private User user;
 }

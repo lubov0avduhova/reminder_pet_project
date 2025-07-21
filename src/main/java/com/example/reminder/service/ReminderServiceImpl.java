@@ -2,6 +2,7 @@ package com.example.reminder.service;
 
 import com.example.reminder.dto.request.ReminderRequest;
 import com.example.reminder.dto.request.ReminderUpdateRequest;
+import com.example.reminder.dto.response.FullReminderResponse;
 import com.example.reminder.dto.response.ReminderResponse;
 import com.example.reminder.entity.Reminder;
 import com.example.reminder.entity.User;
@@ -14,6 +15,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Service
 @RequiredArgsConstructor
@@ -62,13 +66,32 @@ public class ReminderServiceImpl implements ReminderService {
         Reminder oldReminder = user.getReminders().stream().filter(r -> r.getId().equals(reminderId)).findFirst().orElse(null);
 
         if (oldReminder == null) {
-            throw  new ReminderException("Напоминание не найдено");
+            throw new ReminderException("Напоминание не найдено");
         }
 
         Reminder newEntity = mapper.updateToEntity(oldReminder, reminder);
         reminderRepository.save(newEntity);
 
         return new ReminderResponse("Обновление напоминания прошло успешно");
+    }
+
+    @Override
+    public FullReminderResponse findReminder(String title, String description, LocalDateTime date) {
+
+        LocalDateTime start = null;
+        LocalDateTime end = null;
+
+        if (date != null) {
+            start = date.toLocalDate().atStartOfDay();
+            end = date.toLocalDate().atTime(LocalTime.MAX);
+        }
+
+        Reminder reminder = reminderRepository.findReminder(title, description, start, end);
+        if (reminder == null) {
+            throw new ReminderException("Напоминание не найдено");
+        }
+
+        return mapper.toDto(reminder);
     }
 
     private void existsUserById(Long id) {
