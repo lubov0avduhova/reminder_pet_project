@@ -9,6 +9,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
 
@@ -26,5 +28,10 @@ public interface ReminderMapper {
     @BeanMapping(ignoreUnmappedSourceProperties = "id")
     FullReminderResponse toDto(Reminder entity);
 
-    List<FullReminderResponse> toDtoList(List<Reminder> reminderList);
+    List<FullReminderResponse> toDtoList(List<Reminder> entities);
+
+    default Page<FullReminderResponse> toDtoPage(Page<Reminder> page) {
+        List<FullReminderResponse> content = toDtoList(page.getContent());
+        return new PageImpl<>(content, page.getPageable(), page.getTotalElements());
+    }
 }

@@ -13,13 +13,13 @@ import com.example.reminder.repository.ReminderRepository;
 import com.example.reminder.repository.UserRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -96,10 +96,17 @@ public class ReminderServiceImpl implements ReminderService {
     }
 
     @Override
-    public List<FullReminderResponse> findAllRemindersBySort(Pageable pageable) {
-        List<Reminder> sorted = reminderRepository.findAll(pageable).stream().toList();
+    public Page<FullReminderResponse> findAllRemindersBySort(Pageable pageable) {
+        Page<Reminder> sorted = reminderRepository.findAll(pageable);
 
-         return mapper.toDtoList(sorted);
+        return mapper.toDtoPage(sorted);
+    }
+
+    @Override
+    public Page<FullReminderResponse> findAllRemindersByFilter(LocalDateTime remindAfter, LocalDateTime remindBefore, Pageable pageable) {
+        Page<Reminder> allByRemindBetween = reminderRepository.findAllByRemindBetween(remindAfter, remindBefore, pageable);
+
+        return mapper.toDtoPage(allByRemindBetween);
     }
 
     private void existsUserById(Long id) {
