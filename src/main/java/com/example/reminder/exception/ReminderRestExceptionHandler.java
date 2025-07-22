@@ -18,10 +18,7 @@ import java.util.Map;
 public class ReminderRestExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<ReminderErrorResponse> handleReminderException(ReminderException ex) {
-        ReminderErrorResponse response = ReminderErrorResponse.builder()
-                .message(ex.getMessage())
-                .date(LocalDateTime.now())
-                .build();
+        ReminderErrorResponse response = new ReminderErrorResponse(ex.getMessage(), LocalDateTime.now());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

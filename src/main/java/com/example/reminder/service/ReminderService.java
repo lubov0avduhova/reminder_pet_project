@@ -6,8 +6,10 @@ import com.example.reminder.dto.response.FullReminderResponse;
 import com.example.reminder.dto.response.ReminderResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface ReminderService {
     ReminderResponse createReminder(ReminderRequest reminder);
@@ -17,4 +19,6 @@ public interface ReminderService {
     ReminderResponse updateReminder(@NotNull Long reminderId, @Valid ReminderUpdateRequest reminder);
 
     FullReminderResponse findReminder(String title, String description, LocalDateTime date);
+
+    List<FullReminderResponse> findAllRemindersBySort(Pageable pageable);
 }

@@ -21,4 +21,5 @@ public interface ReminderRepository extends JpaRepository<Reminder, Long> {
                           @Param("description") String description,
                           @Param("start") LocalDateTime start,
                           @Param("end") LocalDateTime end);
+
 }

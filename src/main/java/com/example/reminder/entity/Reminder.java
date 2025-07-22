@@ -27,7 +27,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-//todo можно ли использовать @Data?
 public class Reminder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +44,7 @@ public class Reminder {
     private LocalDateTime remind;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "app_user_id")
     @JsonBackReference
     @NotNull(message = "ID пользователя не должен быть пустым")
     private User user;

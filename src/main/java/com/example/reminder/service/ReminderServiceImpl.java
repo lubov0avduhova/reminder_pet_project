@@ -13,11 +13,13 @@ import com.example.reminder.repository.ReminderRepository;
 import com.example.reminder.repository.UserRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class ReminderServiceImpl implements ReminderService {
     @Transactional
     @Override
     public ReminderResponse createReminder(ReminderRequest reminder) {
-        existsUserById(reminder.getUserId());
+        existsUserById(reminder.userId());
         Reminder entity = mapper.toEntity(reminder);
         Reminder savedEntity = reminderRepository.save(entity);
 
@@ -54,7 +56,6 @@ public class ReminderServiceImpl implements ReminderService {
             user.getReminders().remove(reminder);
         }
 
-
         return new ReminderResponse("Напоминание с Id: " + reminder.getId() + " было удалено");
     }
 
@@ -62,7 +63,7 @@ public class ReminderServiceImpl implements ReminderService {
     @Override
     public ReminderResponse updateReminder(@NotNull Long reminderId, ReminderUpdateRequest reminder) {
 
-        User user = userRepository.findById(reminder.getUserId()).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
+        User user = userRepository.findById(reminder.userId()).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
         Reminder oldReminder = user.getReminders().stream().filter(r -> r.getId().equals(reminderId)).findFirst().orElse(null);
 
         if (oldReminder == null) {
@@ -92,6 +93,13 @@ public class ReminderServiceImpl implements ReminderService {
         }
 
         return mapper.toDto(reminder);
+    }
+
+    @Override
+    public List<FullReminderResponse> findAllRemindersBySort(Pageable pageable) {
+        List<Reminder> sorted = reminderRepository.findAll(pageable).stream().toList();
+
+         return mapper.toDtoList(sorted);
     }
 
     private void existsUserById(Long id) {

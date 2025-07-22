@@ -10,9 +10,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ReminderMapper {
@@ -27,4 +25,6 @@ public interface ReminderMapper {
 
     @BeanMapping(ignoreUnmappedSourceProperties = "id")
     FullReminderResponse toDto(Reminder entity);
+
+    List<FullReminderResponse> toDtoList(List<Reminder> reminderList);
 }
