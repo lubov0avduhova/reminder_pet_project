@@ -21,7 +21,7 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Table(name = "\"user\"")
+@Table(name = "app_user")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

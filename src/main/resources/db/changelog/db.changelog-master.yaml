@@ -1,13 +1,13 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/user/01-change-user.yaml
+      file: db/changelog/user/01-change-app-user.sql
   - include:
-      file: db/changelog/reminder/01-change-reminder.yaml
+      file: db/changelog/user/02-insert-app-user.sql
   - include:
-      file: db/changelog/user_reminder/01-change-user-reminder.yaml
+      file: db/changelog/reminder/01-change-reminder.sql
   - include:
-      file: db/changelog/reminder/03-fix-id-sequence.yaml
+      file: db/changelog/reminder/02-insert-reminder.sql
   - include:
-      file: db/changelog/user/02-insert-user.yaml
+      file: db/changelog/reminder/03-fix-id-sequence.sql
   - include:
-      file: db/changelog/reminder/02-insert-reminder.yaml
+      file: db/changelog/user_reminder/01-change-app-user-reminder.sql
