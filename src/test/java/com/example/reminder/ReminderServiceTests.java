@@ -1,6 +1,7 @@
 package com.example.reminder;
 
 import com.example.reminder.dto.request.ReminderRequest;
+import com.example.reminder.dto.request.ReminderUpdateRequest;
 import com.example.reminder.dto.response.ReminderResponse;
 import com.example.reminder.entity.Reminder;
 import com.example.reminder.entity.User;
@@ -220,7 +221,48 @@ public class ReminderServiceTests {
 
 
     @Test
+    public void ReminderService_UpdateReminder_ReturnUserNotFoundException() {
+        //arrange
+        Long userId = -1L;
+        Long reminderId = 1L;
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        //act
+        UserNotFoundException ex = assertThrows(
+                UserNotFoundException.class,
+                () -> service.updateReminder(reminderId, ReminderUpdateRequest.builder().userId(userId).build()));
+
+        //assert
+        assertEquals("Пользователь не найден", ex.getMessage());
+    }
+
+
+    @Test
     public void ReminderService_UpdateReminder_ReturnReminderException() {
+        //arrange
+        User user = User.builder()
+                .id(1L)
+                .username("Maksim")
+                .email("maksim@gmail.com")
+                .telegramId("12345")
+                .reminders(new ArrayList<>())
+                .build();
+
+        when(userRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(user));
+
+        //act
+        ReminderException ex = assertThrows(
+                ReminderException.class,
+                () -> service.updateReminder(user.getId(), ReminderUpdateRequest.builder().userId(user.getId()).build()));
+
+        //assert
+        assertEquals("Напоминание не найдено", ex.getMessage());
+    }
+
+
+    @Test
+    public void ReminderService_UpdateReminder_ReturnReminderResponse() {
         //arrange
         User user = User.builder()
                 .id(1L)
@@ -240,59 +282,25 @@ public class ReminderServiceTests {
 
         user.getReminders().add(reminder);
 
-        Long notExistsId = -2L;
-
-        when(userRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(user));
-
-        //act
-        ReminderException ex = assertThrows(
-                ReminderException.class,
-                () -> service.deleteReminder(user.getId(), notExistsId));
-
-        //assert
-        assertEquals("Напоминание не найдено", ex.getMessage());
-    }
-
-    @Test
-    public void ReminderService_UpdateReminder_ReturnReminderResponse() {
-        //arrange
-        User user = User.builder()
-                .id(1L)
-                .username("Maksim")
-                .email("maksim@gmail.com")
-                .telegramId("12345")
-                .reminders(new ArrayList<>())
-                .build();
-
-        Reminder firstReminder = Reminder.builder()
-                .id(1L)
+        ReminderUpdateRequest newReminder = ReminderUpdateRequest.builder()
                 .title("Проверить почту")
-                .description("Проверить и отсортировать по папкам")
+                .description("Проверить и отсортировать по папкам, а также очистить папку спам")
                 .remind(LocalDateTime.now().plusMinutes(10))
-                .user(user)
+                .userId(user.getId())
                 .build();
 
-        Reminder secondReminder = Reminder.builder()
-                .id(2L)
-                .title("Поставить пирог в духовку")
-                .description("Поставить на 30 минут")
-                .remind(LocalDateTime.now().plusMinutes(30))
-                .user(user)
-                .build();
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(mapper.updateToEntity(user.getReminders().get(0), newReminder)).thenReturn(reminder);
 
-        user.getReminders().add(firstReminder);
-        user.getReminders().add(secondReminder);
-
-        Long userId = 1L;
-        Long reminderId = 1L;
-
-        when(userRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(user));
+        when(reminderRepository.save(reminder)).thenReturn(reminder);
 
         //act
-        ReminderResponse response = service.deleteReminder(userId, reminderId);
+        ReminderResponse response = service.updateReminder(reminder.getId(), newReminder);
 
         //assert
-        assertEquals("Напоминание с Id: " + reminderId + " было удалено", response.message());
-        assertEquals(1, user.getReminders().size());
+        assertEquals("Обновление напоминания прошло успешно", response.message());
+
+
+
     }
 }

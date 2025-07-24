@@ -3,9 +3,11 @@ package com.example.reminder.dto.request;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
+@Builder
 public record ReminderUpdateRequest(
         @Size(max = 255, message = "Краткое описание не должно быть больше 255 символов")
         String title,
