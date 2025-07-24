@@ -45,28 +45,20 @@ public class ReminderServiceImpl implements ReminderService {
     @Transactional
     @Override
     public ReminderResponse deleteReminder(@NotNull Long userId, @NotNull Long reminderId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
-        Reminder reminder = user.getReminders().stream()
-                .filter(r -> r.getId().equals(reminderId)).findFirst()
-                .orElseThrow(() -> new ReminderException("Напоминание с Id: " + reminderId + " не было удалено. Напоминание не найдено"));
+        UserWithReminder userWithReminder = findUserWithReminder(userId, reminderId);
 
-        user.getReminders().remove(reminder);
+        userWithReminder.user.getReminders().remove(userWithReminder.reminder);
 
-        return new ReminderResponse("Напоминание с Id: " + reminder.getId() + " было удалено");
+        return new ReminderResponse("Напоминание с Id: " + userWithReminder.reminder.getId() + " было удалено");
     }
 
     @Transactional
     @Override
     public ReminderResponse updateReminder(@NotNull Long reminderId, ReminderUpdateRequest reminder) {
 
-        User user = userRepository.findById(reminder.userId()).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
-        Reminder oldReminder = user.getReminders().stream().filter(r -> r.getId().equals(reminderId)).findFirst().orElse(null);
+        UserWithReminder userWithReminder = findUserWithReminder(reminder.userId(), reminderId);
 
-        if (oldReminder == null) {
-            throw new ReminderException("Напоминание не найдено");
-        }
-
-        Reminder newEntity = mapper.updateToEntity(oldReminder, reminder);
+        Reminder newEntity = mapper.updateToEntity(userWithReminder.reminder, reminder);
         reminderRepository.save(newEntity);
 
         return new ReminderResponse("Обновление напоминания прошло успешно");
@@ -110,4 +102,19 @@ public class ReminderServiceImpl implements ReminderService {
             throw new UserNotFoundException("Пользователь не найден");
         }
     }
+
+    private record UserWithReminder(User user, Reminder reminder) {}
+
+    private UserWithReminder findUserWithReminder(Long userId, Long reminderId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
+
+        Reminder reminder = user.getReminders().stream()
+                .filter(r -> r.getId().equals(reminderId))
+                .findFirst()
+                .orElseThrow(() -> new ReminderException("Напоминание не найдено"));
+
+        return new UserWithReminder(user, reminder);
+    }
+
 }

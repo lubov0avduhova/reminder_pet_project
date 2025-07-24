@@ -48,9 +48,6 @@ public class ReminderServiceTests {
 
         ReminderRequest request = ReminderRequest.builder().userId(id).build();
 
-        when(userRepository.existsById(id)
-        ).thenReturn(false);
-
         //act
         UserNotFoundException ex = assertThrows(
                 UserNotFoundException.class,
@@ -175,7 +172,7 @@ public class ReminderServiceTests {
                 () -> service.deleteReminder(user.getId(), notExistsId));
 
         //assert
-        assertEquals("Напоминание с Id: " + notExistsId + " не было удалено. Напоминание не найдено", ex.getMessage());
+        assertEquals("Напоминание не найдено", ex.getMessage());
     }
 
     @Test
@@ -221,4 +218,81 @@ public class ReminderServiceTests {
         assertEquals(1, user.getReminders().size());
     }
 
+
+    @Test
+    public void ReminderService_UpdateReminder_ReturnReminderException() {
+        //arrange
+        User user = User.builder()
+                .id(1L)
+                .username("Maksim")
+                .email("maksim@gmail.com")
+                .telegramId("12345")
+                .reminders(new ArrayList<>())
+                .build();
+
+        Reminder reminder = Reminder.builder()
+                .id(1L)
+                .title("Проверить почту")
+                .description("Проверить и отсортировать по папкам")
+                .remind(LocalDateTime.now().plusMinutes(10))
+                .user(user)
+                .build();
+
+        user.getReminders().add(reminder);
+
+        Long notExistsId = -2L;
+
+        when(userRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(user));
+
+        //act
+        ReminderException ex = assertThrows(
+                ReminderException.class,
+                () -> service.deleteReminder(user.getId(), notExistsId));
+
+        //assert
+        assertEquals("Напоминание не найдено", ex.getMessage());
+    }
+
+    @Test
+    public void ReminderService_UpdateReminder_ReturnReminderResponse() {
+        //arrange
+        User user = User.builder()
+                .id(1L)
+                .username("Maksim")
+                .email("maksim@gmail.com")
+                .telegramId("12345")
+                .reminders(new ArrayList<>())
+                .build();
+
+        Reminder firstReminder = Reminder.builder()
+                .id(1L)
+                .title("Проверить почту")
+                .description("Проверить и отсортировать по папкам")
+                .remind(LocalDateTime.now().plusMinutes(10))
+                .user(user)
+                .build();
+
+        Reminder secondReminder = Reminder.builder()
+                .id(2L)
+                .title("Поставить пирог в духовку")
+                .description("Поставить на 30 минут")
+                .remind(LocalDateTime.now().plusMinutes(30))
+                .user(user)
+                .build();
+
+        user.getReminders().add(firstReminder);
+        user.getReminders().add(secondReminder);
+
+        Long userId = 1L;
+        Long reminderId = 1L;
+
+        when(userRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(user));
+
+        //act
+        ReminderResponse response = service.deleteReminder(userId, reminderId);
+
+        //assert
+        assertEquals("Напоминание с Id: " + reminderId + " было удалено", response.message());
+        assertEquals(1, user.getReminders().size());
+    }
 }
