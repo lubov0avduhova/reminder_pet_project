@@ -50,11 +50,7 @@ public class ReminderServiceImpl implements ReminderService {
                 .filter(r -> r.getId().equals(reminderId)).findFirst()
                 .orElseThrow(() -> new ReminderException("Напоминание с Id: " + reminderId + " не было удалено. Напоминание не найдено"));
 
-
-        if (reminderRepository.existsById(reminder.getId())) {
-            System.out.println("удален reminder = " + reminder);
-            user.getReminders().remove(reminder);
-        }
+        user.getReminders().remove(reminder);
 
         return new ReminderResponse("Напоминание с Id: " + reminder.getId() + " было удалено");
     }
