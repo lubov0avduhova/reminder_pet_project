@@ -1,4 +1,4 @@
-package com.example.reminder;
+package com.example.reminder.service;
 
 import com.example.reminder.dto.request.ReminderRequest;
 import com.example.reminder.dto.request.ReminderUpdateRequest;
@@ -11,7 +11,6 @@ import com.example.reminder.exception.UserNotFoundException;
 import com.example.reminder.mapper.ReminderMapper;
 import com.example.reminder.repository.ReminderRepository;
 import com.example.reminder.repository.UserRepository;
-import com.example.reminder.service.ReminderServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
