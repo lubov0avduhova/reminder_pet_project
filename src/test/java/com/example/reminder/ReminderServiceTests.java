@@ -17,11 +17,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -357,5 +363,119 @@ public class ReminderServiceTests {
 
         //assert
         assertEquals("Напоминание не найдено", ex.getMessage());
+    }
+
+    @Test
+    public void ReminderService_FindAllRemindersBySort_ReturnsPageOfFullReminderResponse() {
+        // arrange
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Reminder firstReminder = Reminder.builder()
+                .id(1L)
+                .title("Проверить почту")
+                .description("Проверить и отсортировать по папкам")
+                .remind(LocalDateTime.now().plusMinutes(10))
+                .user(null)
+                .build();
+
+        Reminder secondReminder = Reminder.builder()
+                .id(2L)
+                .title("Поставить пирог в духовку")
+                .description("Поставить на 30 минут")
+                .remind(LocalDateTime.now().plusMinutes(30))
+                .user(null)
+                .build();
+        List<Reminder> reminders = List.of(firstReminder, secondReminder);
+
+        Page<Reminder> reminderPage = new PageImpl<>(reminders, pageable, reminders.size());
+
+
+        FullReminderResponse firstResponse = FullReminderResponse.builder()
+                .title(firstReminder.getTitle())
+                .description(firstReminder.getDescription())
+                .remind(firstReminder.getRemind())
+                .build();
+        FullReminderResponse secondResponse = FullReminderResponse.builder()
+                .title(secondReminder.getTitle())
+                .description(secondReminder.getDescription())
+                .remind(secondReminder.getRemind())
+                .build();
+
+
+        List<FullReminderResponse> responses = List.of(firstResponse, secondResponse);
+        Page<FullReminderResponse> responsesPage = new PageImpl<>(responses, pageable, responses.size());
+
+        when(reminderRepository.findAll(pageable)).thenReturn(reminderPage);
+        when(mapper.toDtoPage(reminderPage)).thenReturn(responsesPage);
+
+        // act
+        Page<FullReminderResponse> result = service.findAllRemindersBySort(pageable);
+
+        // assert
+        assertEquals(2, result.getContent().size());
+        assertEquals("Проверить почту", result.getContent().get(0).title());
+    }
+
+    @Test
+    public void ReminderService_FindAllRemindersByFilter_ReturnsPageOfFullReminderResponse() {
+        // arrange
+        Pageable pageable = PageRequest.of(0, 10);
+
+        LocalDateTime remindAfter = LocalDateTime.now().plusMinutes(10);
+        LocalDateTime remindBefore = remindAfter.minusDays(2);
+
+        Reminder firstReminder = Reminder.builder()
+                .id(1L)
+                .title("Проверить почту")
+                .description("Проверить и отсортировать по папкам")
+                .remind(remindAfter)
+                .user(null)
+                .build();
+
+        Reminder secondReminder = Reminder.builder()
+                .id(2L)
+                .title("Поставить пирог в духовку")
+                .description("Поставить на 30 минут")
+                .remind(remindBefore.plusDays(1))
+                .user(null)
+                .build();
+
+        Reminder thirdReminder = Reminder.builder()
+                .id(3L)
+                .title("Помыть машину")
+                .description("Найти свободное время")
+                .remind(remindAfter.plusDays(5))
+                .user(null)
+                .build();
+
+        List<Reminder> reminders = List.of(firstReminder, secondReminder, thirdReminder);
+
+        Page<Reminder> reminderPage = new PageImpl<>(reminders, pageable, reminders.size());
+
+
+        FullReminderResponse firstResponse = FullReminderResponse.builder()
+                .title(firstReminder.getTitle())
+                .description(firstReminder.getDescription())
+                .remind(firstReminder.getRemind())
+                .build();
+        FullReminderResponse secondResponse = FullReminderResponse.builder()
+                .title(secondReminder.getTitle())
+                .description(secondReminder.getDescription())
+                .remind(secondReminder.getRemind())
+                .build();
+
+
+        List<FullReminderResponse> responses = List.of(firstResponse, secondResponse);
+        Page<FullReminderResponse> responsesPage = new PageImpl<>(responses, pageable, responses.size());
+
+        when(reminderRepository.findAllByRemindBetween(remindBefore, remindAfter, pageable)).thenReturn(reminderPage);
+        when(mapper.toDtoPage(reminderPage)).thenReturn(responsesPage);
+
+        // act
+        Page<FullReminderResponse> result = service.findAllRemindersByFilter(remindAfter, remindBefore, pageable);
+
+        // assert
+        assertEquals(2, result.getContent().size());
+        assertEquals("Поставить пирог в духовку", result.getContent().get(1).title());
     }
 }
