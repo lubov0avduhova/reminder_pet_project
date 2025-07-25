@@ -2,6 +2,7 @@ package com.example.reminder;
 
 import com.example.reminder.dto.request.ReminderRequest;
 import com.example.reminder.dto.request.ReminderUpdateRequest;
+import com.example.reminder.dto.response.FullReminderResponse;
 import com.example.reminder.dto.response.ReminderResponse;
 import com.example.reminder.entity.Reminder;
 import com.example.reminder.entity.User;
@@ -15,15 +16,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,7 +86,7 @@ public class ReminderServiceTests {
         when(userRepository.existsById(request.userId())
         ).thenReturn(true);
 
-        when(reminderRepository.save(Mockito.any(Reminder.class))).thenReturn(reminder);
+        when(reminderRepository.save(any(Reminder.class))).thenReturn(reminder);
 
         //act
         ReminderResponse response = service.createReminder(request);
@@ -113,7 +116,7 @@ public class ReminderServiceTests {
         when(userRepository.existsById(request.userId())
         ).thenReturn(true);
 
-        when(reminderRepository.save(Mockito.any(Reminder.class))).thenReturn(reminder);
+        when(reminderRepository.save(any(Reminder.class))).thenReturn(reminder);
 
         //act
         ReminderException ex = assertThrows(
@@ -165,7 +168,7 @@ public class ReminderServiceTests {
 
         Long notExistsId = -2L;
 
-        when(userRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(user));
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(user));
 
         //act
         ReminderException ex = assertThrows(
@@ -209,7 +212,7 @@ public class ReminderServiceTests {
         Long userId = 1L;
         Long reminderId = 1L;
 
-        when(userRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(user));
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(user));
 
         //act
         ReminderResponse response = service.deleteReminder(userId, reminderId);
@@ -249,7 +252,7 @@ public class ReminderServiceTests {
                 .reminders(new ArrayList<>())
                 .build();
 
-        when(userRepository.findById(Mockito.any(Long.class))).thenReturn(Optional.of(user));
+        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(user));
 
         //act
         ReminderException ex = assertThrows(
@@ -259,7 +262,6 @@ public class ReminderServiceTests {
         //assert
         assertEquals("Напоминание не найдено", ex.getMessage());
     }
-
 
     @Test
     public void ReminderService_UpdateReminder_ReturnReminderResponse() {
@@ -299,8 +301,61 @@ public class ReminderServiceTests {
 
         //assert
         assertEquals("Обновление напоминания прошло успешно", response.message());
+    }
+
+    @Test
+    public void ReminderService_FindReminderByTitle_ReturnsFullReminderResponse() {
+        String title = "Проверить почту";
+        String description = "Проверить и отсортировать по папкам, а также очистить папку спам";
+        LocalDateTime localDateTime = LocalDateTime.now().plusMinutes(10);
+
+        Reminder reminder = Reminder.builder()
+                .id(1L)
+                .title("Проверить почту")
+                .description("Проверить и отсортировать по папкам")
+                .remind(localDateTime)
+                .user(null)
+                .build();
+        FullReminderResponse foundReminder = FullReminderResponse.builder()
+                .title("Проверить почту")
+                .description("Проверить и отсортировать по папкам, а также очистить папку спам")
+                .remind(localDateTime)
+                .build();
 
 
+        when(reminderRepository.findReminder(title, description, localDateTime.toLocalDate().atStartOfDay(), localDateTime.toLocalDate().atTime(LocalTime.MAX))
+        ).thenReturn(reminder);
 
+        when(mapper.toDto(reminder)).thenReturn(foundReminder);
+
+        FullReminderResponse response = service.findReminder(title, description, localDateTime);
+
+        assertLinesMatch(foundReminder.toString().lines(), response.toString().lines());
+    }
+
+    @Test
+    public void ReminderService_FindReminder_ReturnReminderException() {
+        //arrange
+        String title = "Проверить почту";
+        String description = "Проверить и отсортировать по папкам, а также очистить папку спам";
+        LocalDateTime remind = LocalDateTime.now().plusMinutes(10);
+
+        when(reminderRepository.findReminder(
+                        eq(title),
+                        eq(description),
+                        any(),
+                        any()
+                )
+        ).thenReturn(null);
+
+        //act
+        ReminderException ex = assertThrows(
+                ReminderException.class,
+                () -> service.findReminder(title,
+                        description,
+                        remind));
+
+        //assert
+        assertEquals("Напоминание не найдено", ex.getMessage());
     }
 }
