@@ -1,4 +1,4 @@
-package com.example.reminder.service;
+package com.example.reminder.service.reminder;
 
 import com.example.reminder.dto.request.ReminderRequest;
 import com.example.reminder.dto.request.ReminderUpdateRequest;
@@ -23,4 +23,5 @@ public interface ReminderService {
     Page<FullReminderResponse> findAllRemindersBySort(Pageable pageable);
 
     Page<FullReminderResponse> findAllRemindersByFilter(LocalDateTime remindAfter, LocalDateTime remindBefore, Pageable pageable);
+    void checkDueReminders();
 }

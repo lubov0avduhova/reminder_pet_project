@@ -1,4 +1,4 @@
-package com.example.reminder.service;
+package com.example.reminder.service.reminder;
 
 import com.example.reminder.dto.request.ReminderRequest;
 import com.example.reminder.dto.request.ReminderUpdateRequest;
@@ -11,9 +11,11 @@ import com.example.reminder.exception.UserNotFoundException;
 import com.example.reminder.mapper.ReminderMapper;
 import com.example.reminder.repository.ReminderRepository;
 import com.example.reminder.repository.UserRepository;
+import com.example.reminder.service.notification.NotificationService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ public class ReminderServiceImpl implements ReminderService {
     private final ReminderRepository reminderRepository;
     private final UserRepository userRepository;
     private final ReminderMapper mapper;
+    private NotificationService notificationService;
 
     @Transactional
     @Override
@@ -97,13 +100,32 @@ public class ReminderServiceImpl implements ReminderService {
         return mapper.toDtoPage(allByRemindBetween);
     }
 
+    @Transactional
+    @Override
+    public void checkDueReminders() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime windowStart = now.minusMinutes(15);
+        Pageable pageable = PageRequest.of(0, 100); //todo не знаю, какое тут число ставить
+        Page<Reminder> page;
+
+        do {
+            page = reminderRepository.findAllByRemindBetweenAndSentFalse(windowStart, now, pageable);
+            for (Reminder reminder : page.getContent()) {
+                notificationService.send(reminder);
+                reminderRepository.updateSentTrueById(reminder.getId());
+            }
+            pageable = pageable.next();
+        } while (!page.isLast());
+    }
+
     private void existsUserById(Long id) {
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException("Пользователь не найден");
         }
     }
 
-    private record UserWithReminder(User user, Reminder reminder) {}
+    private record UserWithReminder(User user, Reminder reminder) {
+    }
 
     private UserWithReminder findUserWithReminder(Long userId, Long reminderId) {
         User user = userRepository.findById(userId)

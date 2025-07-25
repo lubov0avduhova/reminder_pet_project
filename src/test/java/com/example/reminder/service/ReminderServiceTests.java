@@ -11,6 +11,7 @@ import com.example.reminder.exception.UserNotFoundException;
 import com.example.reminder.mapper.ReminderMapper;
 import com.example.reminder.repository.ReminderRepository;
 import com.example.reminder.repository.UserRepository;
+import com.example.reminder.service.reminder.ReminderServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -467,7 +468,7 @@ public class ReminderServiceTests {
         List<FullReminderResponse> responses = List.of(firstResponse, secondResponse);
         Page<FullReminderResponse> responsesPage = new PageImpl<>(responses, pageable, responses.size());
 
-        when(reminderRepository.findAllByRemindBetween(remindBefore, remindAfter, pageable)).thenReturn(reminderPage);
+        when(reminderRepository.findAllByRemindBetween(remindAfter, remindBefore, pageable)).thenReturn(reminderPage);
         when(mapper.toDtoPage(reminderPage)).thenReturn(responsesPage);
 
         // act

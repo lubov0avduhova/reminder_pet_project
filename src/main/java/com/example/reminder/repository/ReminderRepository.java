@@ -4,6 +4,7 @@ import com.example.reminder.entity.Reminder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -24,4 +25,10 @@ public interface ReminderRepository extends JpaRepository<Reminder, Long> {
                           @Param("end") LocalDateTime end);
 
     Page<Reminder> findAllByRemindBetween(LocalDateTime from, LocalDateTime to, Pageable pageable);
+
+    Page<Reminder>  findAllByRemindBetweenAndSentFalse(LocalDateTime from, LocalDateTime to, Pageable pageable);
+
+    @Query("UPDATE Reminder r SET r.sent = true WHERE r.id = :id")
+    @Modifying
+    void updateSentTrueById(@Param("id") Long id);
 }

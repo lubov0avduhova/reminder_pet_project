@@ -1,7 +1,7 @@
 package com.example.reminder.controller;
 
 import com.example.reminder.dto.response.FullReminderResponse;
-import com.example.reminder.service.ReminderService;
+import com.example.reminder.service.reminder.ReminderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

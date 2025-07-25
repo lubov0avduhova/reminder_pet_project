@@ -4,7 +4,7 @@ import com.example.reminder.dto.request.ReminderRequest;
 import com.example.reminder.dto.request.ReminderUpdateRequest;
 import com.example.reminder.dto.response.FullReminderResponse;
 import com.example.reminder.dto.response.ReminderResponse;
-import com.example.reminder.service.ReminderService;
+import com.example.reminder.service.reminder.ReminderService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;

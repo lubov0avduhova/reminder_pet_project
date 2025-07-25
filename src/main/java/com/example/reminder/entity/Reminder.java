@@ -1,6 +1,7 @@
 package com.example.reminder.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -50,4 +51,7 @@ public class Reminder {
     @JsonBackReference
     @NotNull(message = "ID пользователя не должен быть пустым")
     private User user;
+
+    @Column(name = "sent")
+    private boolean sent;
 }

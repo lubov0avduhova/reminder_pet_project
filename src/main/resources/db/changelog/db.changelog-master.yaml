@@ -11,3 +11,5 @@ databaseChangeLog:
       file: db/changelog/reminder/03-fix-id-sequence.sql
   - include:
       file: db/changelog/user_reminder/01-change-app-user-reminder.sql
+  - include:
+      file: db/changelog/reminder/04-alter-reminder.sql

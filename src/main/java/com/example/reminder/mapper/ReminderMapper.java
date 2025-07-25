@@ -18,11 +18,13 @@ import java.util.List;
 public interface ReminderMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(source = "userId", target = "user.id")
+    @Mapping(target = "sent", ignore = true)
     Reminder toEntity(ReminderRequest dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "userId", target = "user.id")
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "sent", ignore = true)
     Reminder updateToEntity(@MappingTarget Reminder entity, ReminderUpdateRequest dto);
 
     @BeanMapping(ignoreUnmappedSourceProperties = "id")
