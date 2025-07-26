@@ -36,7 +36,7 @@ public class ReminderControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockBean //todo надо менять из-за deprecated или можно оставить?
     private ReminderService reminderService;
 
     @Autowired
